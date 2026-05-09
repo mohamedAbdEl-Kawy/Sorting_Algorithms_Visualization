@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Sorting Algorithm Visualizer | Bubble · Quick · Merge · Heap · More</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f5f7fc 0%, #eef2f7 100%);
+      font-family: 'Segoe UI', Roboto, 'Fira Code', 'Poppins', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* main card container */
+    .vis-card {
+      max-width: 1300px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(0px);
+      border-radius: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      padding: 1.5rem 2rem 2rem 2rem;
+      transition: all 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem 0;
+      background: linear-gradient(135deg, #1a2a3a, #2c4c6c);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .sub {
+      color: #4a627a;
+      border-left: 4px solid #3b82f6;
+      padding-left: 12px;
+      margin-bottom: 1.5rem;
+      font-weight: 450;
+      font-size: 0.9rem;
+    }
+
+    /* canvas area */
+    .canvas-container {
+      background: #1e2a36;
+      border-radius: 1.8rem;
+      padding: 0.8rem;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #0f1720;
+      border-radius: 1.2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+
+    /* controls row */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      justify-content: space-between;
+    }
+
+    .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #f0f4fa;
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .ctrl-group label {
+      font-weight: 600;
+      color: #1f3a4b;
+      font-size: 0.85rem;
+    }
+
+    select,
+    input[type="range"],
+    button {
+      background: white;
+      border: none;
+      padding: 0.45rem 1rem;
+      border-radius: 2rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      font-size: 0.85rem;
+    }
+
+    select {
+      background: #fff;
+      border: 1px solid #cddae9;
+    }
+
+    button {
+      background: #2c3e50;
+      color: white;
+      padding: 0.5rem 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      border: none;
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    button:hover:not(:disabled) {
+      background: #1e2f3c;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-primary {
+      background: #2563eb;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
+
+    .btn-warning {
+      background: #dc2626;
+    }
+
+    .btn-warning:hover:not(:disabled) {
+      background: #b91c1c;
+    }
+
+    .btn-outline {
+      background: #eef3fc;
+      color: #1f4a6e;
+      border: 1px solid #b9d0e7;
+    }
+
+    button:disabled,
+    select:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .speed-value,
+    .size-value {
+      background: #ffffffcc;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+
+    .badge {
+      background: #e2eaf5;
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #1f6392;
+    }
+
+    footer {
+      font-size: 0.7rem;
+      text-align: center;
+      margin-top: 1.2rem;
+      color: #5b6f87;
+    }
+
+    @media (max-width: 760px) {
+      .vis-card {
+        padding: 1rem;
+      }
+
+      .ctrl-group {
+        padding: 0.3rem 0.8rem;
+      }
+
+      button,
+      select {
+        padding: 0.3rem 0.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="vis-card">
+    <h1>✨ SORTING VISUALIZER</h1>
+    <div class="sub">Bubble · Selection · Insertion · Merge · Quick · Heap — live animations</div>
+
+    <div class="canvas-container">
+      <canvas id="sortCanvas" width="1100" height="450"
+        style="width:100%; height:auto; max-width:1100px; aspect-ratio:1100/450"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <span>🧠 Algorithm</span>
+        <select id="algoSelect">
+          <option value="bubble">🌀 Bubble Sort</option>
+          <option value="selection">🎯 Selection Sort</option>
+          <option value="insertion">📌 Insertion Sort</option>
+          <option value="merge">⚡ Merge Sort</option>
+          <option value="quick">⚙️ Quick Sort (Lomuto)</option>
+          <option value="heap">🌲 Heap Sort</option>
+        </select>
+      </div>
+
+      <div class="ctrl-group">
+        <span>📏 Size</span>
+        <input type="range" id="sizeSlider" min="10" max="85" value="45" step="1">
+        <span id="sizeValue" class="size-value">45</span>
+      </div>
+
+      <div class="ctrl-group">
+        <span>⏱️ Speed (ms)</span>
+        <input type="range" id="speedSlider" min="1" max="120" value="18" step="1">
+        <span id="speedValue" class="speed-value">18</span>
+      </div>
+
+      <div class="ctrl-group">
+        <button id="randomizeBtn" class="btn-outline">🎲 RANDOMIZE</button>
+        <button id="startBtn" class="btn-primary">▶ START SORT</button>
+        <button id="stopBtn" class="btn-warning">⏹️ STOP</button>
+      </div>
+    </div>
+    <div class="badge" style="display: inline-block;">💡 Bars: comparing <span
+        style="background:#ffb347; display:inline-block; width:14px; height:14px; border-radius:3px;"></span> · swap
+      <span style="background:#ff5e5e; display:inline-block; width:14px; height:14px; border-radius:3px;"></span> ·
+      sorted <span style="background:#4caf7f; display:inline-block; width:14px; height:14px; border-radius:3px;"></span>
+    </div>
+    <footer>✔️ Real-time steps | Sorting interrupts safely | Merge & Quick visual recursion</footer>
+  </div>
+
+  <script>
+    (function () {
+      // ---------- DOM elements ----------
+      const canvas = document.getElementById('sortCanvas');
+      const ctx = canvas.getContext('2d');
+      const algoSelect = document.getElementById('algoSelect');
+      const sizeSlider = document.getElementById('sizeSlider');
+      const sizeValue = document.getElementById('sizeValue');
+      const speedSlider = document.getElementById('speedSlider');
+      const speedValue = document.getElementById('speedValue');
+      const randomizeBtn = document.getElementById('randomizeBtn');
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+
+      // ---------- global state ----------
+      let array = [];            // current values (10..100)
+      let barColors = [];       // color for each index
+      let sortingActive = false;  // flag to cancel sorting
+      let animationRequest = null;
+      let currentDelay = 18;      // ms
+
+      // canvas dimensions (fixed logical)
+      let canvasWidth = 1100;
+      let canvasHeight = 450;
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+
+      // constants
+      const MIN_VALUE = 12;
+      const MAX_VALUE = 100;
+      const DEFAULT_SIZE = 45;
+
+      // color palette
+      const COLOR_DEFAULT = "#3b82f6";     // vibrant blue
+      const COLOR_COMPARE = "#ffb347";      // orange
+      const COLOR_SWAP = "#ff5e5e";         // red/coral
+      const COLOR_SORTED = "#4caf7f";       // mint green
+
+      // ---------- helper functions ----------
+      function updateSpeedDisplay() {
+        currentDelay = parseInt(speedSlider.value, 10);
+        speedValue.innerText = currentDelay;
+      }
+
+      function updateSizeDisplay() {
+        const newSize = parseInt(sizeSlider.value, 10);
+        sizeValue.innerText = newSize;
+        if (!sortingActive) {
+          generateRandomArray(newSize);
+          drawCanvas();
+        }
+      }
+
+      // generate random array between MIN_VALUE and MAX_VALUE
+      function generateRandomArray(size) {
+        const newArr = [];
+        for (let i = 0; i < size; i++) {
+          newArr.push(Math.floor(Math.random() * (MAX_VALUE - MIN_VALUE + 1) + MIN_VALUE));
+        }
+        array = newArr;
+        barColors = new Array(size).fill(COLOR_DEFAULT);
+      }
+
+      // draw everything on canvas
+      function drawCanvas() {
+        if (!ctx) return;
+        const n = array.length;
+        if (n === 0) return;
+        const barWidth = (canvasWidth - 60) / n; // left/right margin 30px each => total 60
+        const leftMargin = 30;
+        const rightMargin = 30;
+        const usableWidth = canvasWidth - leftMargin - rightMargin;
+        const dynamicBarWidth = usableWidth / n;
+        const maxVal = Math.max(...array, MAX_VALUE);
+
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        // background rounded corners effect
+        ctx.fillStyle = "#0f1720";
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        for (let i = 0; i < n; i++) {
+          const heightRatio = array[i] / maxVal;
+          const barHeight = Math.max(4, heightRatio * (canvasHeight - 70));
+          const x = leftMargin + i * dynamicBarWidth;
+          const y = canvasHeight - barHeight - 20;
+          ctx.fillStyle = barColors[i] || COLOR_DEFAULT;
+          ctx.shadowBlur = 2;
+          ctx.shadowColor = "rgba(0,0,0,0.2)";
+          ctx.fillRect(x, y, dynamicBarWidth - 1.5, barHeight);
+          ctx.fillStyle = "#ffffff30";
+          ctx.fillRect(x, y, dynamicBarWidth - 1.5, 2);
+        }
+        ctx.shadowBlur = 0;
+      }
+
+      // reset colors to default except mark all sorted after finish
+      function resetColorsToDefault() {
+        for (let i = 0; i < barColors.length; i++) {
+          barColors[i] = COLOR_DEFAULT;
+        }
+        drawCanvas();
+      }
+
+      function markSorted() {
+        for (let i = 0; i < barColors.length; i++) {
+          barColors[i] = COLOR_SORTED;
+        }
+        drawCanvas();
+      }
+
+      // highlight comparing pair
+      function setComparing(idxA, idxB) {
+        if (idxA >= 0 && idxA < barColors.length) barColors[idxA] = COLOR_COMPARE;
+        if (idxB >= 0 && idxB < barColors.length) barColors[idxB] = COLOR_COMPARE;
+        drawCanvas();
+      }
+
+      function setSwap(idxA, idxB) {
+        if (idxA >= 0 && idxA < barColors.length) barColors[idxA] = COLOR_SWAP;
+        if (idxB >= 0 && idxB < barColors.length) barColors[idxB] = COLOR_SWAP;
+        drawCanvas();
+      }
+
+      function clearSingleColor(idx) {
+        if (idx >= 0 && idx < barColors.length) barColors[idx] = COLOR_DEFAULT;
+      }
+
+      function resetComparing(idxA, idxB) {
+        if (idxA >= 0 && idxA < barColors.length && barColors[idxA] !== COLOR_SORTED) barColors[idxA] = COLOR_DEFAULT;
+        if (idxB >= 0 && idxB < barColors.length && barColors[idxB] !== COLOR_SORTED) barColors[idxB] = COLOR_DEFAULT;
+      }
+
+      async function sleep() {
+        return new Promise(resolve => setTimeout(resolve, currentDelay));
+      }
+
+      // check cancel flag, used inside sorting loops
+      function isCancelled() {
+        return !sortingActive;
+      }
+
+      // safe swap + visualization
+      async function swapElements(i, j) {
+        if (i === j) return;
+        setSwap(i, j);
+        await sleep();
+        // swap in array
+        [array[i], array[j]] = [array[j], array[i]];
+        drawCanvas();
+        await sleep();
+        // reset swap colors
+        if (!isCancelled()) {
+          if (barColors[i] === COLOR_SWAP) barColors[i] = COLOR_DEFAULT;
+          if (barColors[j] === COLOR_SWAP) barColors[j] = COLOR_DEFAULT;
+          drawCanvas();
+        }
+      }
+
+      // ----- ALGORITHMS (async with cancel checks) -----
+      async function bubbleSortAsync() {
+        const n = array.length;
+        for (let i = 0; i < n - 1; i++) {
+          for (let j = 0; j < n - i - 1; j++) {
+            if (isCancelled()) return false;
+            setComparing(j, j + 1);
+            await sleep();
+            if (array[j] > array[j + 1]) {
+              await swapElements(j, j + 1);
+            }
+            resetComparing(j, j + 1);
+            drawCanvas();
+            await sleep();
+          }
+          // mark last element as sorted region (visual)
+          if (!isCancelled() && (n - i - 1) < n) {
+            barColors[n - i - 1] = COLOR_SORTED;
+            drawCanvas();
+          }
+        }
+        if (!isCancelled()) markSorted();
+        return true;
+      }
+
+      async function selectionSortAsync() {
+        const n = array.length;
+        for (let i = 0; i < n - 1; i++) {
+          let minIdx = i;
+          for (let j = i + 1; j < n; j++) {
+            if (isCancelled()) return false;
+            setComparing(minIdx, j);
+            await sleep();
+            if (array[j] < array[minIdx]) {
+              if (minIdx !== i) clearSingleColor(minIdx);
+              minIdx = j;
+            }
+            resetComparing(minIdx, j);
+            drawCanvas();
+          }
+          if (minIdx !== i) {
+            await swapElements(i, minIdx);
+          }
+          barColors[i] = COLOR_SORTED;
+          drawCanvas();
+          await sleep();
+          if (isCancelled()) return false;
+        }
+        if (!isCancelled()) markSorted();
+        return true;
+      }
+
+      async function insertionSortAsync() {
+        const n = array.length;
+        for (let i = 1; i < n; i++) {
+          let key = array[i];
+          let j = i - 1;
+          setComparing(i, j);
+          await sleep();
+          while (j >= 0 && array[j] > key) {
+            if (isCancelled()) return false;
+            setSwap(j, j + 1);
+            await sleep();
+            array[j + 1] = array[j];
+            drawCanvas();
+            await sleep();
+            resetComparing(j, j + 1);
+            j--;
+            if (j >= 0) setComparing(i, j);
+            await sleep();
+          }
+          array[j + 1] = key;
+          drawCanvas();
+          for (let k = 0; k <= i; k++) barColors[k] = COLOR_SORTED;
+          drawCanvas();
+          await sleep();
+          if (isCancelled()) return false;
+        }
+        if (!isCancelled()) markSorted();
+        return true;
+      }
+
+      // Merge Sort helpers
+      async function mergeAsync(l, m, r) {
+        const leftArr = array.slice(l, m + 1);
+        const rightArr = array.slice(m + 1, r + 1);
+        let i = 0, j = 0, k = l;
+        while (i < leftArr.length && j < rightArr.length) {
+          if (isCancelled()) return false;
+          setComparing(l + i, m + 1 + j);
+          await sleep();
+          if (leftArr[i] <= rightArr[j]) {
+            array[k] = leftArr[i];
+            i++;
+          } else {
+            array[k] = rightArr[j];
+            j++;
+          }
+          barColors[k] = COLOR_SWAP;
+          drawCanvas();
+          await sleep();
+          if (barColors[k] !== COLOR_SORTED) barColors[k] = COLOR_DEFAULT;
+          k++;
+        }
+        while (i < leftArr.length) {
+          if (isCancelled()) return false;
+          array[k] = leftArr[i];
+          barColors[k] = COLOR_SWAP;
+          drawCanvas();
+          await sleep();
+          if (barColors[k] !== COLOR_SORTED) barColors[k] = COLOR_DEFAULT;
+          i++; k++;
+        }
+        while (j < rightArr.length) {
+          if (isCancelled()) return false;
+          array[k] = rightArr[j];
+          barColors[k] = COLOR_SWAP;
+          drawCanvas();
+          await sleep();
+          if (barColors[k] !== COLOR_SORTED) barColors[k] = COLOR_DEFAULT;
+          j++; k++;
+        }
+        for (let idx = l; idx <= r; idx++) {
+          if (barColors[idx] !== COLOR_SORTED) barColors[idx] = COLOR_DEFAULT;
+        }
+        drawCanvas();
+        await sleep();
+        return true;
+      }
+
+      async function mergeSortRecursive(l, r) {
+        if (l >= r) return true;
+        if (isCancelled()) return false;
+        const mid = Math.floor((l + r) / 2);
+        await mergeSortRecursive(l, mid);
+        if (isCancelled()) return false;
+        await mergeSortRecursive(mid + 1, r);
+        if (isCancelled()) return false;
+        const success = await mergeAsync(l, mid, r);
+        return success;
+      }
+
+      async function mergeSortAsync() {
+        const success = await mergeSortRecursive(0, array.length - 1);
+        if (!isCancelled() && success) markSorted();
+        return success;
+      }
+
+      // Quick Sort (Lomuto partition)
+      async function partitionAsync(low, high) {
+        const pivot = array[high];
+        let i = low - 1;
+        for (let j = low; j < high; j++) {
+          if (isCancelled()) return -1;
+          setComparing(j, high);
+          await sleep();
+          if (array[j] <= pivot) {
+            i++;
+            await swapElements(i, j);
+          }
+          resetComparing(j, high);
+          drawCanvas();
+          await sleep();
+        }
+        await swapElements(i + 1, high);
+        return i + 1;
+      }
+
+      async function quickSortRecursive(low, high) {
+        if (low < high) {
+          if (isCancelled()) return false;
+          const pi = await partitionAsync(low, high);
+          if (pi === -1) return false;
+          await quickSortRecursive(low, pi - 1);
+          if (isCancelled()) return false;
+          await quickSortRecursive(pi + 1, high);
+          if (isCancelled()) return false;
+        } else if (low === high && low >= 0) {
+          barColors[low] = COLOR_SORTED;
+          drawCanvas();
+          await sleep();
+        }
+        return true;
+      }
+
+      async function quickSortAsync() {
+        const success = await quickSortRecursive(0, array.length - 1);
+        if (!isCancelled() && success) markSorted();
+        return success;
+      }
+
+      // Heap Sort helpers
+      async function heapifyAsync(n, i) {
+        let largest = i;
+        const left = 2 * i + 1;
+        const right = 2 * i + 2;
+        if (left < n) {
+          if (isCancelled()) return false;
+          setComparing(largest, left);
+          await sleep();
+          if (array[left] > array[largest]) largest = left;
+          resetComparing(largest, left);
+        }
+        if (right < n) {
+          if (isCancelled()) return false;
+          setComparing(largest, right);
+          await sleep();
+          if (array[right] > array[largest]) largest = right;
+          resetComparing(largest, right);
+        }
+        if (largest !== i) {
+          await swapElements(i, largest);
+          await heapifyAsync(n, largest);
+          if (isCancelled()) return false;
+        }
+        return true;
+      }
+
+      async function heapSortAsync() {
+        const n = array.length;
+        // build heap
+        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+          if (isCancelled()) return false;
+          await heapifyAsync(n, i);
+          drawCanvas();
+          await sleep();
+        }
+        // extract elements
+        for (let i = n - 1; i > 0; i--) {
+          if (isCancelled()) return false;
+          await swapElements(0, i);
+          barColors[i] = COLOR_SORTED;
+          drawCanvas();
+          await sleep();
+          await heapifyAsync(i, 0);
+        }
+        if (!isCancelled()) markSorted();
+        return true;
+      }
+
+      // ---------- run sorting dispatcher ----------
+      async function runSorting() {
+        if (sortingActive) return;
+        sortingActive = true;
+        disableControlsDuringSort(true);
+        resetColorsToDefault();
+
+        const algorithm = algoSelect.value;
+        let success = false;
+        try {
+          switch (algorithm) {
+            case 'bubble': success = await bubbleSortAsync(); break;
+            case 'selection': success = await selectionSortAsync(); break;
+            case 'insertion': success = await insertionSortAsync(); break;
+            case 'merge': success = await mergeSortAsync(); break;
+            case 'quick': success = await quickSortAsync(); break;
+            case 'heap': success = await heapSortAsync(); break;
+            default: success = false;
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+
+        if (!sortingActive) {
+          // stopped by user
+          resetColorsToDefault();
+          drawCanvas();
+        } else if (success) {
+          // final sorted colors
+          markSorted();
+        }
+        sortingActive = false;
+        disableControlsDuringSort(false);
+      }
+
+      function disableControlsDuringSort(disable) {
+        startBtn.disabled = disable;
+        randomizeBtn.disabled = disable;
+        algoSelect.disabled = disable;
+        sizeSlider.disabled = disable;
+        // stop btn always active, but we manage functionality
+        if (!disable) {
+          stopBtn.disabled = false;
+        } else {
+          stopBtn.disabled = false; // stop remains clickable
+        }
+      }
+
+      function stopSorting() {
+        if (sortingActive) {
+          sortingActive = false;
+          disableControlsDuringSort(false);
+          resetColorsToDefault();
+          drawCanvas();
+        }
+      }
+
+      function randomizeAndReset() {
+        if (sortingActive) {
+          stopSorting();
+        }
+        const size = parseInt(sizeSlider.value, 10);
+        generateRandomArray(size);
+        resetColorsToDefault();
+        drawCanvas();
+      }
+
+      // event bindings & resize handler
+      function handleResize() {
+        const container = canvas.parentElement;
+        const computedWidth = Math.min(1100, container.clientWidth - 20);
+        canvas.style.width = `${computedWidth}px`;
+        canvas.width = computedWidth;
+        canvasHeight = 450;
+        canvas.height = canvasHeight;
+        canvasWidth = computedWidth;
+        drawCanvas();
+      }
+      window.addEventListener('resize', () => { handleResize(); });
+
+      function init() {
+        const initialSize = DEFAULT_SIZE;
+        sizeSlider.value = initialSize;
+        updateSizeDisplay();
+        generateRandomArray(initialSize);
+        drawCanvas();
+        updateSpeedDisplay();
+
+        speedSlider.addEventListener('input', () => {
+          updateSpeedDisplay();
+        });
+        sizeSlider.addEventListener('input', () => {
+          if (!sortingActive) {
+            updateSizeDisplay();
+          } else {
+            // if sorting, cannot change size but we update later
+            const val = sizeSlider.value;
+            sizeValue.innerText = val;
+          }
+        });
+        randomizeBtn.addEventListener('click', () => {
+          if (sortingActive) stopSorting();
+          randomizeAndReset();
+        });
+        startBtn.addEventListener('click', () => {
+          if (!sortingActive) {
+            runSorting();
+          }
+        });
+        stopBtn.addEventListener('click', () => {
+          stopSorting();
+        });
+        handleResize();
+      }
+
+      init();
+    })();
+  </script>
+</body>
+
+</html>
