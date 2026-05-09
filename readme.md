@@ -4,7 +4,7 @@ An interactive and responsive **Sorting Algorithm Visualizer** built using **HTM
 This project visually demonstrates how popular sorting algorithms work through smooth real-time animations on an HTML5 Canvas.
 
 ---
-
+## (Live Demo)[https://mohamedabdel-kawy.github.io/Sorting_Algorithms_Visualization/]
 ## ✨ Features
 
 - 🎨 Modern glassmorphism-inspired UI
